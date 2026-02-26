@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Parkour Master — Learn & Play',
   description: 'A fun 2D parkour platformer game for kids, based on the Australian School Curriculum. Answer questions to keep playing!',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export const viewport: Viewport = {
