@@ -257,12 +257,16 @@ const STARS = (() => {
 
 interface BgTheme { skyTop: string; skyBot: string; cloudColor: string; mountainColor: string; stars: boolean; moon: boolean; }
 const BG_THEMES: BgTheme[] = [
-  { skyTop: '#87CEEB', skyBot: '#E0F4FF', cloudColor: 'rgba(255,255,255,0.85)', mountainColor: 'rgba(100,149,237,0.40)', stars: false, moon: false }, // Easy – sunny day
-  { skyTop: '#4A8FCC', skyBot: '#B0D8EE', cloudColor: 'rgba(255,252,220,0.80)', mountainColor: 'rgba(60,100,190,0.45)',  stars: false, moon: false }, // Medium – warm midday
-  { skyTop: '#E08030', skyBot: '#F5C030', cloudColor: 'rgba(255,185,105,0.75)', mountainColor: 'rgba(140,52,16,0.55)',   stars: false, moon: false }, // Getting Tricky – golden afternoon
-  { skyTop: '#7E1630', skyBot: '#D44A18', cloudColor: 'rgba(210,108,68,0.65)',  mountainColor: 'rgba(50,8,18,0.65)',     stars: false, moon: false }, // Hard – deep sunset
-  { skyTop: '#160840', skyBot: '#4E1880', cloudColor: 'rgba(130,65,200,0.40)',  mountainColor: 'rgba(22,6,42,0.78)',     stars: true,  moon: false }, // Very Hard – twilight
-  { skyTop: '#020208', skyBot: '#08082A', cloudColor: 'rgba(22,22,65,0.35)',   mountainColor: 'rgba(5,5,18,0.95)',      stars: true,  moon: true  }, // Expert – deep night
+  { skyTop: '#C0628A', skyBot: '#FFB07C', cloudColor: 'rgba(255,210,200,0.80)', mountainColor: 'rgba(120,60,80,0.50)',  stars: false, moon: false }, //  1 Tutorial  – sunrise
+  { skyTop: '#5BA8D4', skyBot: '#C8E8F8', cloudColor: 'rgba(255,255,255,0.85)', mountainColor: 'rgba(80,120,180,0.40)', stars: false, moon: false }, //  2 Easy      – early morning
+  { skyTop: '#3E8FCC', skyBot: '#A8D8F0', cloudColor: 'rgba(255,255,240,0.82)', mountainColor: 'rgba(55,95,175,0.42)',  stars: false, moon: false }, //  3 Easy+     – morning
+  { skyTop: '#1A6BAF', skyBot: '#87CEEB', cloudColor: 'rgba(255,255,255,0.75)', mountainColor: 'rgba(40,80,160,0.45)',  stars: false, moon: false }, //  4 Medium    – midday
+  { skyTop: '#4A8FCC', skyBot: '#B0D8EE', cloudColor: 'rgba(255,252,220,0.78)', mountainColor: 'rgba(60,100,190,0.45)', stars: false, moon: false }, //  5 Medium+   – afternoon
+  { skyTop: '#E08030', skyBot: '#F5C030', cloudColor: 'rgba(255,185,105,0.75)', mountainColor: 'rgba(140,52,16,0.55)',  stars: false, moon: false }, //  6 Tricky    – golden hour
+  { skyTop: '#7E1630', skyBot: '#D44A18', cloudColor: 'rgba(210,108,68,0.65)',  mountainColor: 'rgba(50,8,18,0.65)',    stars: false, moon: false }, //  7 Hard      – sunset
+  { skyTop: '#3A0A50', skyBot: '#8B2040', cloudColor: 'rgba(160,80,140,0.55)',  mountainColor: 'rgba(35,5,45,0.72)',    stars: false, moon: false }, //  8 Hard+     – dusk
+  { skyTop: '#160840', skyBot: '#4E1880', cloudColor: 'rgba(130,65,200,0.40)',  mountainColor: 'rgba(22,6,42,0.78)',    stars: true,  moon: false }, //  9 Very Hard – twilight
+  { skyTop: '#020208', skyBot: '#08082A', cloudColor: 'rgba(22,22,65,0.35)',    mountainColor: 'rgba(5,5,18,0.95)',     stars: true,  moon: true  }, // 10 Expert    – deep night
 ];
 
 function drawBackground(ctx: CanvasRenderingContext2D, camX: number, time: number, levelIndex: number) {
@@ -275,13 +279,17 @@ function drawBackground(ctx: CanvasRenderingContext2D, camX: number, time: numbe
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // Sun (levels 0–3, moves lower and redder as difficulty rises)
-  if (levelIndex <= 3) {
+  // Sun (levels 0–7, rises then sets, getting redder each level)
+  if (levelIndex <= 7) {
     const suns = [
-      { px: 0.85, py: 50,  r: 26, body: '#FFE840', glow: 'rgba(255,240,80,'  },
-      { px: 0.78, py: 68,  r: 24, body: '#FFC020', glow: 'rgba(255,190,30,'  },
-      { px: 0.12, py: 115, r: 32, body: '#FF8010', glow: 'rgba(255,120,10,'  },
-      { px: 0.08, py: 205, r: 38, body: '#CC2200', glow: 'rgba(180,20,0,'    },
+      { px: 0.15, py: 220, r: 30, body: '#FF8C5A', glow: 'rgba(255,140,90,'  }, //  1 sunrise – low left, orange-pink
+      { px: 0.82, py: 65,  r: 26, body: '#FFE060', glow: 'rgba(255,220,60,'  }, //  2 early morning – upper right, warm yellow
+      { px: 0.80, py: 50,  r: 24, body: '#FFE840', glow: 'rgba(255,240,80,'  }, //  3 morning – upper right, bright yellow
+      { px: 0.50, py: 36,  r: 22, body: '#FFF0A0', glow: 'rgba(255,245,150,' }, //  4 midday – top centre, white-yellow
+      { px: 0.78, py: 58,  r: 24, body: '#FFC020', glow: 'rgba(255,190,30,'  }, //  5 afternoon – upper right, golden
+      { px: 0.12, py: 115, r: 32, body: '#FF8010', glow: 'rgba(255,120,10,'  }, //  6 golden hour – right side, orange
+      { px: 0.08, py: 225, r: 38, body: '#CC2200', glow: 'rgba(180,20,0,'    }, //  7 sunset – low right, deep red
+      { px: 0.88, py: 345, r: 45, body: '#6B0000', glow: 'rgba(100,0,0,'     }, //  8 dusk – below mountains, barely visible
     ];
     const sun = suns[Math.min(levelIndex, 3)];
     const sunX = CANVAS_WIDTH * sun.px;
@@ -364,7 +372,7 @@ function drawParticles(ctx: CanvasRenderingContext2D, particles: Particle[], cam
 function drawHUD(
   ctx: CanvasRenderingContext2D,
   score: number, level: number, levelProgress: number, levelLength: number,
-  lives: number, playerName: string
+  lives: number, playerName: string, timerMs: number
 ) {
   // Progress bar
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
@@ -410,6 +418,16 @@ function drawHUD(
     ctx.font = '20px Arial';
     ctx.fillText('♥', CANVAS_WIDTH - 30 - i * 28, 32);
   }
+
+  // Timer
+  ctx.shadowColor = '#000';
+  ctx.shadowBlur = 3;
+  ctx.fillStyle = '#FFF';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(formatTime(timerMs), CANVAS_WIDTH - 10, 56);
+  ctx.shadowBlur = 0;
+  ctx.textAlign = 'left';
 }
 
 // ─── Enemy drawing ────────────────────────────────────────────────────────────
@@ -573,6 +591,8 @@ export default function Game() {
     levelLength: number;
     keys: Set<string>;
     time: number;
+    timerMs: number;
+    lastFrameTime: number;
     touching: { left: boolean; right: boolean; jump: boolean };
   } | null>(null);
 
@@ -586,6 +606,13 @@ export default function Game() {
   const [lives, setLives] = useState(3);
   const [levelIndex, setLevelIndex] = useState(0);
   const [showControls, setShowControls] = useState(false);
+  const [finalTimeMs, setFinalTimeMs] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [lbLoading, setLbLoading] = useState(false);
+  const [lbError, setLbError] = useState('');
+  const [myEntryId, setMyEntryId] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitName, setSubmitName] = useState('');
 
   // Skin state
   const [skin, setSkinState] = useState<PlayerSkin>(DEFAULT_SKIN);
@@ -609,7 +636,7 @@ export default function Game() {
   }, []);
 
   // ─── Initialise level ──────────────────────────────────────────────────────
-  const initLevel = useCallback((lvl: number) => {
+  const initLevel = useCallback((lvl: number, carryTimerMs = 0) => {
     const { platforms, enemies } = generateLevel(lvl);
     const levelLength = getLevelLength(lvl);
     const startPlat = platforms[0];
@@ -628,6 +655,8 @@ export default function Game() {
       levelLength,
       keys: new Set(),
       time: 0,
+      timerMs: carryTimerMs,
+      lastFrameTime: 0,
       touching: { left: false, right: false, jump: false },
     };
   }, []);
@@ -638,6 +667,9 @@ export default function Game() {
     if (!g) return;
 
     g.time++;
+    const now = performance.now();
+    if (g.lastFrameTime > 0) g.timerMs += now - g.lastFrameTime;
+    g.lastFrameTime = now;
     const p = g.player;
 
     const moveLeft  = g.keys.has('ArrowLeft')  || g.keys.has('a') || g.keys.has('A') || g.touching.left;
@@ -757,8 +789,12 @@ export default function Game() {
         g.score += 200;
         setScore(g.score);
         spawnParticles(g.particles, plat.x + 20, plat.y + plat.height / 2, '#FFD700', 30);
-        if (g.levelIndex + 1 >= TOTAL_LEVELS) setGameState('gameComplete');
-        else setGameState('levelComplete');
+        if (g.levelIndex + 1 >= TOTAL_LEVELS) {
+          setFinalTimeMs(g.timerMs);
+          setGameState('gameComplete');
+        } else {
+          setGameState('levelComplete');
+        }
         return;
       }
     }
@@ -798,7 +834,7 @@ export default function Game() {
     drawParticles(ctx, g.particles, g.cameraX);
     drawEnemies(ctx, g.enemies, g.cameraX, g.time);
     drawPlayer(ctx, g.player, g.cameraX, s.shirtColor, s.pantsColor);
-    drawHUD(ctx, g.score, g.levelIndex, g.player.x, g.levelLength, g.lives, s.name);
+    drawHUD(ctx, g.score, g.levelIndex, g.player.x, g.levelLength, g.lives, s.name, g.timerMs);
   }, []);
 
   // ─── Game loop ─────────────────────────────────────────────────────────────
@@ -813,7 +849,9 @@ export default function Game() {
     setLevelIndex(lvl);
     setLives(3);
     setScore(0);
-    initLevel(lvl);
+    setFinalTimeMs(0);
+    setMyEntryId(null);
+    initLevel(lvl, 0);
     setGameState('playing');
   }, [initLevel]);
 
@@ -830,8 +868,9 @@ export default function Game() {
   // ─── Level complete ────────────────────────────────────────────────────────
   const nextLevel = useCallback(() => {
     const nextLvl = levelIndex + 1;
+    const carryMs = gameStateRef.current?.timerMs ?? 0;
     setLevelIndex(nextLvl);
-    initLevel(nextLvl);
+    initLevel(nextLvl, carryMs);
     setGameState('playing');
   }, [levelIndex, initLevel]);
 
@@ -888,6 +927,29 @@ export default function Game() {
 
     setTimeout(() => setGameState('playing'), correct ? 1200 : 2000);
   }, [question, answerResult]);
+
+  // ─── Leaderboard ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (gameState !== 'gameComplete') return;
+    setSubmitName(skin.name || '');
+    setMyEntryId(null);
+    setLbError('');
+    setLbLoading(true);
+    fetchLeaderboard()
+      .then(setLeaderboard)
+      .catch(() => setLbError('Could not load scores'))
+      .finally(() => setLbLoading(false));
+  }, [gameState, skin.name]);
+
+  const handleSubmitScore = useCallback(async () => {
+    if (!submitName.trim() || submitting || myEntryId !== null) return;
+    setSubmitting(true);
+    const id = await submitToLeaderboard(submitName.trim(), finalTimeMs, yearLevel);
+    setMyEntryId(id ?? -1);
+    const fresh = await fetchLeaderboard();
+    setLeaderboard(fresh);
+    setSubmitting(false);
+  }, [submitName, submitting, myEntryId, finalTimeMs, yearLevel]);
 
   // ─── Touch controls ────────────────────────────────────────────────────────
   const setTouch = (key: 'left' | 'right' | 'jump', val: boolean) => {
@@ -1002,25 +1064,103 @@ export default function Game() {
             </div>
           </div>
 
-          <p style={{ marginTop: '16px', color: '#7F8C8D', fontSize: '0.8rem' }}>Based on the Australian School Curriculum</p>
+          <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <p style={{ color: '#7F8C8D', fontSize: '0.8rem', margin: 0 }}>Based on the Australian School Curriculum</p>
+            <a href="/leaderboard" style={{ color: '#F39C12', fontSize: '0.8rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🏆 Leaderboard
+            </a>
+          </div>
         </div>
       </div>
     );
   }
 
   if (gameState === 'gameComplete') {
+    const medals = ['🥇', '🥈', '🥉'];
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f3460, #533483)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif' }}>
-        <div style={{ textAlign: 'center', color: 'white', padding: '40px' }}>
-          <div style={{ fontSize: '80px', marginBottom: '16px' }}>🏆</div>
-          <h1 style={{ fontSize: '3rem', margin: '0 0 12px', color: '#F39C12' }}>
+      <div style={{ minHeight: '100dvh', background: 'linear-gradient(135deg, #0f3460, #533483)', overflowY: 'auto', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ textAlign: 'center', color: 'white', padding: '32px 20px', maxWidth: '560px', margin: '0 auto' }}>
+          <div style={{ fontSize: '64px', marginBottom: '8px' }}>🏆</div>
+          <h1 style={{ fontSize: '2.2rem', margin: '0 0 6px', color: '#F39C12' }}>
             {skin.name ? `Amazing, ${skin.name}!` : 'You Win!'}
           </h1>
-          <p style={{ fontSize: '1.3rem', margin: '0 0 8px' }}>You completed all levels!</p>
-          <p style={{ fontSize: '1.1rem', margin: '0 0 32px', color: '#F39C12' }}>Final Score: {score}</p>
-          <button onClick={() => setGameState('yearSelect')} style={{ padding: '16px 40px', borderRadius: '12px', border: 'none', background: '#F39C12', color: 'white', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}>
-            Play Again
-          </button>
+          <p style={{ fontSize: '1rem', margin: '0 0 16px', color: '#BDC3C7' }}>You completed all 10 levels!</p>
+
+          {/* Time + Score */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '12px 24px', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <div style={{ fontSize: '0.7rem', color: '#BDC3C7', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Time</div>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#F39C12', fontVariantNumeric: 'tabular-nums' }}>{formatTime(finalTimeMs)}</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '12px 24px', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <div style={{ fontSize: '0.7rem', color: '#BDC3C7', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Score</div>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#2ECC71' }}>{score}</div>
+            </div>
+          </div>
+
+          {/* Submit */}
+          {SB_URL && (myEntryId === null ? (
+            <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', marginBottom: '20px', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <p style={{ margin: '0 0 10px', fontWeight: 'bold', fontSize: '0.95rem' }}>Add your time to the leaderboard</p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text" maxLength={16} placeholder="Your name"
+                  value={submitName} onChange={e => setSubmitName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSubmitScore()}
+                  style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
+                />
+                <button
+                  onClick={handleSubmitScore}
+                  disabled={submitting || !submitName.trim()}
+                  style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: submitting || !submitName.trim() ? '#555' : '#F39C12', color: 'white', fontWeight: 'bold', cursor: submitting || !submitName.trim() ? 'default' : 'pointer', fontSize: '0.9rem' }}
+                >{submitting ? '...' : 'Submit'}</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: 'rgba(46,204,113,0.15)', borderRadius: '14px', padding: '12px 16px', marginBottom: '20px', border: '1px solid rgba(46,204,113,0.4)' }}>
+              <p style={{ margin: 0, color: '#2ECC71', fontWeight: 'bold' }}>Time submitted!</p>
+            </div>
+          ))}
+
+          {/* Leaderboard */}
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', marginBottom: '24px', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <h2 style={{ margin: '0 0 12px', fontSize: '0.85rem', color: '#BDC3C7', letterSpacing: '2px', textTransform: 'uppercase' }}>Global Leaderboard</h2>
+            {!SB_URL ? (
+              <p style={{ color: '#7F8C8D', fontSize: '0.85rem', margin: 0 }}>Set up Supabase to enable the global leaderboard.</p>
+            ) : lbLoading ? (
+              <p style={{ color: '#BDC3C7', margin: 0 }}>Loading...</p>
+            ) : lbError ? (
+              <p style={{ color: '#E74C3C', margin: 0, fontSize: '0.85rem' }}>{lbError}</p>
+            ) : leaderboard.length === 0 ? (
+              <p style={{ color: '#BDC3C7', margin: 0, fontSize: '0.85rem' }}>No scores yet — be the first!</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {leaderboard.map((entry, i) => {
+                  const isMe = entry.id === myEntryId;
+                  return (
+                    <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: isMe ? 'rgba(243,156,18,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${isMe ? 'rgba(243,156,18,0.5)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', padding: '8px 12px' }}>
+                      <span style={{ width: '28px', textAlign: 'center', fontSize: i < 3 ? '1.1rem' : '0.85rem', color: i < 3 ? 'inherit' : '#7F8C8D' }}>
+                        {i < 3 ? medals[i] : `#${i + 1}`}
+                      </span>
+                      <span style={{ flex: 1, textAlign: 'left', fontWeight: isMe ? 'bold' : 'normal', color: isMe ? '#F39C12' : '#ECF0F1', fontSize: '0.95rem' }}>{entry.name}</span>
+                      <span style={{ color: '#7F8C8D', fontSize: '0.75rem' }}>Yr {entry.year_level}</span>
+                      <span style={{ fontWeight: 'bold', color: i === 0 ? '#F39C12' : '#ECF0F1', fontVariantNumeric: 'tabular-nums', fontSize: '0.95rem' }}>{formatTime(entry.time_ms)}</span>
+                      {isMe && <span style={{ fontSize: '0.7rem', color: '#F39C12' }}>you</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => setGameState('yearSelect')} style={{ padding: '14px 40px', borderRadius: '12px', border: 'none', background: '#F39C12', color: 'white', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>
+              Play Again
+            </button>
+            <a href="/leaderboard" style={{ padding: '14px 28px', borderRadius: '12px', border: '2px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', fontSize: '1rem', fontWeight: 'bold', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              🏆 Full Leaderboard
+            </a>
+          </div>
         </div>
       </div>
     );

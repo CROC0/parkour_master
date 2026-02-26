@@ -23,18 +23,26 @@ interface LevelConfig {
 }
 
 const levelConfigs: LevelConfig[] = [
-  // 1 – Easy
-  { length: 3000, maxGap: 60, maxRise: 40, minPlatW: 150, maxPlatW: 260, spikeChance: 0.04, checkpointEvery: 500, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
-  // 2 – Medium
-  { length: 3800, maxGap: 80, maxRise: 55, minPlatW: 120, maxPlatW: 220, spikeChance: 0.1, checkpointEvery: 600, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
-  // 3 – Getting Tricky
-  { length: 4500, maxGap: 100, maxRise: 70, minPlatW: 100, maxPlatW: 190, spikeChance: 0.15, checkpointEvery: 700, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
-  // 4 – Hard (walkers introduced)
-  { length: 5000, maxGap: 115, maxRise: 80, minPlatW: 90, maxPlatW: 170, spikeChance: 0.18, checkpointEvery: 750, enemyChance: 0.2, walkerSpeed: 1.0, flyerChance: 0, flyerSpeed: 0 },
-  // 5 – Very Hard (walkers + flyers appear)
-  { length: 5000, maxGap: 115, maxRise: 80, minPlatW: 90, maxPlatW: 170, spikeChance: 0.18, checkpointEvery: 750, enemyChance: 0.2, walkerSpeed: 1.0, flyerChance: 0, flyerSpeed: 0 },
-  // 6 – Expert
-  { length: 5500, maxGap: 125, maxRise: 88, minPlatW: 80, maxPlatW: 155, spikeChance: 0.22, checkpointEvery: 800, enemyChance: 0.28, walkerSpeed: 1.3, flyerChance: 0.2, flyerSpeed: 1.6 },
+  //  1 – Tutorial: no spikes, no enemies, huge platforms
+  { length: 2500, maxGap: 50, maxRise: 28, minPlatW: 180, maxPlatW: 300, spikeChance: 0.0, checkpointEvery: 400, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
+  //  2 – Easy
+  { length: 3000, maxGap: 60, maxRise: 35, minPlatW: 160, maxPlatW: 270, spikeChance: 0.03, checkpointEvery: 450, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
+  //  3 – Easy+
+  { length: 3500, maxGap: 70, maxRise: 45, minPlatW: 145, maxPlatW: 250, spikeChance: 0.06, checkpointEvery: 500, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
+  //  4 – Medium
+  { length: 4000, maxGap: 82, maxRise: 55, minPlatW: 130, maxPlatW: 230, spikeChance: 0.09, checkpointEvery: 560, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
+  //  5 – Medium+
+  { length: 4200, maxGap: 92, maxRise: 64, minPlatW: 115, maxPlatW: 210, spikeChance: 0.12, checkpointEvery: 610, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
+  //  6 – Getting Tricky
+  { length: 4600, maxGap: 102, maxRise: 72, minPlatW: 100, maxPlatW: 190, spikeChance: 0.15, checkpointEvery: 660, enemyChance: 0, walkerSpeed: 0, flyerChance: 0, flyerSpeed: 0 },
+  //  7 – Hard (slow walkers introduced)
+  { length: 5000, maxGap: 112, maxRise: 78, minPlatW: 90, maxPlatW: 175, spikeChance: 0.17, checkpointEvery: 710, enemyChance: 0.15, walkerSpeed: 0.9, flyerChance: 0, flyerSpeed: 0 },
+  //  8 – Hard+ (flyers introduced)
+  { length: 5200, maxGap: 120, maxRise: 84, minPlatW: 82, maxPlatW: 160, spikeChance: 0.2, checkpointEvery: 750, enemyChance: 0.22, walkerSpeed: 1.1, flyerChance: 0.15, flyerSpeed: 1.4 },
+  //  9 – Very Hard
+  { length: 5600, maxGap: 127, maxRise: 89, minPlatW: 76, maxPlatW: 148, spikeChance: 0.23, checkpointEvery: 790, enemyChance: 0.28, walkerSpeed: 1.3, flyerChance: 0.3, flyerSpeed: 1.8 },
+  // 10 – Expert
+  { length: 6000, maxGap: 135, maxRise: 95, minPlatW: 70, maxPlatW: 138, spikeChance: 0.26, checkpointEvery: 830, enemyChance: 0.35, walkerSpeed: 1.6, flyerChance: 0.4, flyerSpeed: 2.2 },
 ];
 
 function rand(min: number, max: number) {
@@ -90,15 +98,19 @@ export function generateLevel(levelIndex: number): { platforms: Platform[]; enem
     }
 
     // Enemies — skip if spike already on platform, checkpoint platform, platform too narrow, or too close to start
-    const minPatrol = WALKER_W + 8;
-    if (cfg.enemyChance > 0 && !hadSpike && !hasCheckpoint && platW >= minPatrol + 8 && platX > 400 && platX < cfg.length - 200 && Math.random() < cfg.enemyChance) {
-      // Flyers need a 50px safe zone on each edge so the player can always land and wait
-      const FLYER_MARGIN = 50;
-      const flyerPatrolLeft = platX + FLYER_MARGIN;
-      const flyerPatrolRight = platX + platW - FLYER_MARGIN;
-      const isFlyer = Math.random() < cfg.flyerChance && flyerPatrolRight - flyerPatrolLeft >= FLYER_W + 10;
+    const FLYER_MARGIN = 50;
+    const WALKER_MARGIN = 30;
+    const flyerPatrolLeft = platX + FLYER_MARGIN;
+    const flyerPatrolRight = platX + platW - FLYER_MARGIN;
+    const wPatrolLeft = platX + WALKER_MARGIN;
+    const wPatrolRight = platX + platW - WALKER_W - 4;
+    const canSpawnFlyer = flyerPatrolRight - flyerPatrolLeft >= FLYER_W + 10;
+    const canSpawnWalker = wPatrolRight > wPatrolLeft;
 
-      if (isFlyer) {
+    if (cfg.enemyChance > 0 && !hadSpike && !hasCheckpoint && platX > 400 && platX < cfg.length - 200 && Math.random() < cfg.enemyChance) {
+      const wantFlyer = Math.random() < cfg.flyerChance;
+
+      if (wantFlyer && canSpawnFlyer) {
         const ew = FLYER_W;
         const eh = FLYER_H;
         const startX = platX + platW / 2 - ew / 2;
@@ -116,7 +128,7 @@ export function generateLevel(levelIndex: number): { platforms: Platform[]; enem
           phase: Math.random() * Math.PI * 2,
           animTimer: 0,
         });
-      } else {
+      } else if (canSpawnWalker) {
         const ew = WALKER_W;
         const eh = WALKER_H;
         const startX = platX + platW / 2 - ew / 2;
@@ -128,13 +140,14 @@ export function generateLevel(levelIndex: number): { platforms: Platform[]; enem
           height: eh,
           vx: cfg.walkerSpeed,
           kind: "walker",
-          patrolLeft: platX + 4,
-          patrolRight: platX + platW - ew - 4,
+          patrolLeft: wPatrolLeft,
+          patrolRight: wPatrolRight,
           patrolBaseY: startY,
           phase: 0,
           animTimer: 0,
         });
       }
+      // else: platform too narrow for safe placement — skip enemy
     }
 
     curRight = platX + platW;
