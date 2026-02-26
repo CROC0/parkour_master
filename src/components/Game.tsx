@@ -871,7 +871,7 @@ export default function Game() {
           {/* ── Year select ── */}
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', border: '1px solid rgba(255,255,255,0.15)' }}>
             <h2 style={{ margin: '0 0 16px', color: '#ECF0F1', fontSize: '1.2rem' }}>What year are you in at school?</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
               {Array.from({ length: 12 }, (_, i) => i + 1).map(y => (
                 <button
                   key={y}
@@ -935,14 +935,14 @@ export default function Game() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
-        <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ display: 'block', maxWidth: '100vw' }} />
+    <div style={{ minHeight: '100dvh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: `${CANVAS_WIDTH}px`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
+        <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ display: 'block', width: '100%', height: 'auto' }} />
 
         {/* Question overlay */}
         {gameState === 'dead' && question && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', borderRadius: '16px', padding: '28px', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.4)' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px' }}>
+            <div style={{ background: 'white', borderRadius: '16px', padding: 'clamp(16px, 4vw, 28px)', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', maxHeight: '90%', overflowY: 'auto' }}>
               <div style={{ fontSize: '40px', marginBottom: '8px' }}>
                 {answerResult === 'correct' ? '🎉' : answerResult === 'wrong' ? '😅' : '💀'}
               </div>
@@ -993,28 +993,31 @@ export default function Game() {
             </div>
           </div>
         )}
+        {/* Touch controls — overlaid at the bottom of the canvas */}
+        {gameState === 'playing' && (
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '8px 12px', pointerEvents: 'none' }}>
+            <div style={{ display: 'flex', gap: '8px', pointerEvents: 'auto' }}>
+              <button
+                onTouchStart={e => { e.preventDefault(); setTouch('left', true); }} onTouchEnd={() => setTouch('left', false)}
+                onMouseDown={() => setTouch('left', true)} onMouseUp={() => setTouch('left', false)} onMouseLeave={() => setTouch('left', false)}
+                style={{ width: '68px', height: '68px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.4)', color: 'white', fontSize: '1.6rem', cursor: 'pointer', userSelect: 'none', touchAction: 'none' }}
+              >←</button>
+              <button
+                onTouchStart={e => { e.preventDefault(); setTouch('right', true); }} onTouchEnd={() => setTouch('right', false)}
+                onMouseDown={() => setTouch('right', true)} onMouseUp={() => setTouch('right', false)} onMouseLeave={() => setTouch('right', false)}
+                style={{ width: '68px', height: '68px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.4)', color: 'white', fontSize: '1.6rem', cursor: 'pointer', userSelect: 'none', touchAction: 'none' }}
+              >→</button>
+            </div>
+            <button
+              onTouchStart={e => { e.preventDefault(); setTouch('jump', true); }} onTouchEnd={() => setTouch('jump', false)}
+              onMouseDown={() => setTouch('jump', true)} onMouseUp={() => setTouch('jump', false)} onMouseLeave={() => setTouch('jump', false)}
+              style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(243,156,18,0.8)', border: '2px solid #F39C12', color: 'white', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', userSelect: 'none', touchAction: 'none', pointerEvents: 'auto' }}
+            >JUMP</button>
+          </div>
+        )}
       </div>
 
-      {/* Touch controls */}
-      <div style={{ display: 'flex', gap: '16px', marginTop: '16px', alignItems: 'center' }}>
-        <button
-          onTouchStart={() => setTouch('left', true)} onTouchEnd={() => setTouch('left', false)}
-          onMouseDown={() => setTouch('left', true)} onMouseUp={() => setTouch('left', false)}
-          style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.3)', color: 'white', fontSize: '1.5rem', cursor: 'pointer', userSelect: 'none' }}
-        >←</button>
-        <button
-          onTouchStart={() => setTouch('jump', true)} onTouchEnd={() => setTouch('jump', false)}
-          onMouseDown={() => setTouch('jump', true)} onMouseUp={() => setTouch('jump', false)}
-          style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(243,156,18,0.7)', border: '2px solid #F39C12', color: 'white', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', userSelect: 'none' }}
-        >JUMP</button>
-        <button
-          onTouchStart={() => setTouch('right', true)} onTouchEnd={() => setTouch('right', false)}
-          onMouseDown={() => setTouch('right', true)} onMouseUp={() => setTouch('right', false)}
-          style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.3)', color: 'white', fontSize: '1.5rem', cursor: 'pointer', userSelect: 'none' }}
-        >→</button>
-      </div>
-
-      <div style={{ marginTop: '10px', textAlign: 'center' }}>
+      <div style={{ marginTop: '8px', textAlign: 'center' }}>
         <button onClick={() => setShowControls(!showControls)} style={{ background: 'none', border: 'none', color: '#7F8C8D', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}>
           {showControls ? 'Hide' : 'Show'} keyboard controls
         </button>
