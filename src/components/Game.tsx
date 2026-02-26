@@ -208,14 +208,85 @@ function drawPlatform(ctx: CanvasRenderingContext2D, plat: Platform, camX: numbe
   }
 }
 
-function drawBackground(ctx: CanvasRenderingContext2D, camX: number, time: number) {
+// ─── Background themes ────────────────────────────────────────────────────────
+const STARS = (() => {
+  const out: { x: number; y: number; size: number }[] = [];
+  let s = 42;
+  const rng = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; };
+  for (let i = 0; i < 60; i++) out.push({ x: rng() * CANVAS_WIDTH, y: rng() * CANVAS_HEIGHT * 0.7, size: 0.5 + rng() * 1.5 });
+  return out;
+})();
+
+interface BgTheme { skyTop: string; skyBot: string; cloudColor: string; mountainColor: string; stars: boolean; moon: boolean; }
+const BG_THEMES: BgTheme[] = [
+  { skyTop: '#87CEEB', skyBot: '#E0F4FF', cloudColor: 'rgba(255,255,255,0.85)', mountainColor: 'rgba(100,149,237,0.40)', stars: false, moon: false }, // Easy – sunny day
+  { skyTop: '#4A8FCC', skyBot: '#B0D8EE', cloudColor: 'rgba(255,252,220,0.80)', mountainColor: 'rgba(60,100,190,0.45)',  stars: false, moon: false }, // Medium – warm midday
+  { skyTop: '#E08030', skyBot: '#F5C030', cloudColor: 'rgba(255,185,105,0.75)', mountainColor: 'rgba(140,52,16,0.55)',   stars: false, moon: false }, // Getting Tricky – golden afternoon
+  { skyTop: '#7E1630', skyBot: '#D44A18', cloudColor: 'rgba(210,108,68,0.65)',  mountainColor: 'rgba(50,8,18,0.65)',     stars: false, moon: false }, // Hard – deep sunset
+  { skyTop: '#160840', skyBot: '#4E1880', cloudColor: 'rgba(130,65,200,0.40)',  mountainColor: 'rgba(22,6,42,0.78)',     stars: true,  moon: false }, // Very Hard – twilight
+  { skyTop: '#020208', skyBot: '#08082A', cloudColor: 'rgba(22,22,65,0.35)',   mountainColor: 'rgba(5,5,18,0.95)',      stars: true,  moon: true  }, // Expert – deep night
+];
+
+function drawBackground(ctx: CanvasRenderingContext2D, camX: number, time: number, levelIndex: number) {
+  const bg = BG_THEMES[Math.min(levelIndex, BG_THEMES.length - 1)];
+
+  // Sky
   const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
-  grad.addColorStop(0, '#87CEEB');
-  grad.addColorStop(1, '#E0F4FF');
+  grad.addColorStop(0, bg.skyTop);
+  grad.addColorStop(1, bg.skyBot);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  // Sun (levels 0–3, moves lower and redder as difficulty rises)
+  if (levelIndex <= 3) {
+    const suns = [
+      { px: 0.85, py: 50,  r: 26, body: '#FFE840', glow: 'rgba(255,240,80,'  },
+      { px: 0.78, py: 68,  r: 24, body: '#FFC020', glow: 'rgba(255,190,30,'  },
+      { px: 0.12, py: 115, r: 32, body: '#FF8010', glow: 'rgba(255,120,10,'  },
+      { px: 0.08, py: 205, r: 38, body: '#CC2200', glow: 'rgba(180,20,0,'    },
+    ];
+    const sun = suns[Math.min(levelIndex, 3)];
+    const sunX = CANVAS_WIDTH * sun.px;
+    const sunGrad = ctx.createRadialGradient(sunX, sun.py, 0, sunX, sun.py, sun.r * 2.5);
+    sunGrad.addColorStop(0, sun.glow + '0.35)');
+    sunGrad.addColorStop(1, sun.glow + '0)');
+    ctx.fillStyle = sunGrad;
+    ctx.beginPath(); ctx.arc(sunX, sun.py, sun.r * 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = sun.body;
+    ctx.beginPath(); ctx.arc(sunX, sun.py, sun.r, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Stars (levels 4–5)
+  if (bg.stars) {
+    for (const star of STARS) {
+      const alpha = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(time * 0.04 + star.x * 0.3));
+      ctx.fillStyle = `rgba(255,255,255,${alpha.toFixed(2)})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Moon (level 5)
+  if (bg.moon) {
+    const moonX = CANVAS_WIDTH * 0.78;
+    const moonY = 52;
+    const moonR = 22;
+    const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, moonR * 2.5);
+    moonGlow.addColorStop(0, 'rgba(255,255,200,0.22)');
+    moonGlow.addColorStop(1, 'rgba(255,255,200,0)');
+    ctx.fillStyle = moonGlow;
+    ctx.beginPath(); ctx.arc(moonX, moonY, moonR * 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFFAE0';
+    ctx.beginPath(); ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(190,180,140,0.45)';
+    ctx.beginPath(); ctx.arc(moonX - 7, moonY + 4,  5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(moonX + 9, moonY - 5,  4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(moonX + 2, moonY + 10, 3, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Clouds
+  ctx.fillStyle = bg.cloudColor;
   const cloudOffsets = [
     { bx: 100, y: 60, w: 100 }, { bx: 400, y: 40, w: 130 }, { bx: 700, y: 75, w: 90 },
     { bx: 1100, y: 50, w: 120 }, { bx: 1500, y: 35, w: 110 }, { bx: 1900, y: 65, w: 95 }, { bx: 2300, y: 45, w: 105 },
@@ -229,7 +300,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, camX: number, time: numbe
     ctx.fill();
   }
 
-  ctx.fillStyle = 'rgba(100,149,237,0.4)';
+  // Mountains
+  ctx.fillStyle = bg.mountainColor;
   const mOffsets = [0, 300, 600, 900, 1200];
   for (const mo of mOffsets) {
     const mx = ((mo - camX * 0.5) % 1500 + 1500) % 1500;
@@ -683,7 +755,7 @@ export default function Game() {
     if (!ctx) return;
 
     const s = skinRef.current;
-    drawBackground(ctx, g.cameraX, g.time);
+    drawBackground(ctx, g.cameraX, g.time, g.levelIndex);
     for (const plat of g.platforms) drawPlatform(ctx, plat, g.cameraX, g.time);
     drawParticles(ctx, g.particles, g.cameraX);
     drawEnemies(ctx, g.enemies, g.cameraX, g.time);
