@@ -100,20 +100,24 @@ export function generateLevel(levelIndex: number): { platforms: Platform[]; enem
       platX < cfg.length - 200 &&
       Math.random() < cfg.enemyChance
     ) {
-      const isFlyer = Math.random() < cfg.flyerChance;
+      // Flyers need a 50px safe zone on each edge so the player can always land and wait
+      const FLYER_MARGIN = 50;
+      const flyerPatrolLeft  = platX + FLYER_MARGIN;
+      const flyerPatrolRight = platX + platW - FLYER_MARGIN;
+      const isFlyer = Math.random() < cfg.flyerChance && flyerPatrolRight - flyerPatrolLeft >= FLYER_W + 10;
 
       if (isFlyer) {
         const ew = FLYER_W;
         const eh = FLYER_H;
         const startX = platX + platW / 2 - ew / 2;
-        const baseY  = newTop - eh - 35;
+        const baseY  = newTop - eh - 50;
         enemies.push({
           x: startX, y: baseY,
           width: ew, height: eh,
           vx: cfg.flyerSpeed,
           kind: 'flyer',
-          patrolLeft:  platX + 4,
-          patrolRight: platX + platW - 4,
+          patrolLeft:  flyerPatrolLeft,
+          patrolRight: flyerPatrolRight,
           patrolBaseY: baseY,
           phase: Math.random() * Math.PI * 2,
           animTimer: 0,
