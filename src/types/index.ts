@@ -53,3 +53,42 @@ export interface Question {
 }
 
 export type GameState = 'yearSelect' | 'playing' | 'dead' | 'levelComplete' | 'gameComplete';
+
+export interface PlayerSkin {
+  name: string;
+  shirtColor: string;
+  pantsColor: string;
+}
+
+export interface LeaderboardEntry {
+  id: number;
+  name: string;
+  time_ms: number;
+  year_level: number;
+}
+
+export interface GameEngineState {
+  player: Player;
+  platforms: Platform[];
+  enemies: Enemy[];
+  particles: Particle[];
+  cameraX: number;
+  checkpointX: number;
+  checkpointY: number;
+  score: number;
+  lives: number;
+  levelIndex: number;
+  levelLength: number;
+  keys: Set<string>;
+  time: number;
+  timerMs: number;
+  lastFrameTime: number;
+  touching: { left: boolean; right: boolean; jump: boolean };
+}
+
+export interface GameCallbacks {
+  onDeath: () => void;
+  onCheckpoint: (newScore: number) => void;
+  onLevelComplete: (newScore: number) => void;
+  onGameComplete: (newScore: number, timerMs: number) => void;
+}
