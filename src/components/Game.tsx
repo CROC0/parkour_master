@@ -5,15 +5,29 @@ import { Player, Platform, Particle, Enemy, Question, GameState, GameEngineState
 import { generateLevel, getLevelLength, CANVAS_HEIGHT, TOTAL_LEVELS } from "@/lib/levelGenerator";
 import { getRandomQuestion } from "@/lib/questions";
 import { audioManager } from "@/lib/audio";
-import { CANVAS_WIDTH, PLAYER_H, LS_KEY, DEFAULT_SKIN } from "@/lib/constants";
-import { fetchLeaderboard, submitToLeaderboard } from "@/lib/leaderboard";
-import { drawBackground, drawPlatform, drawParticles, drawEnemies, drawPlayer, drawHUD } from "@/lib/renderer";
+import {
+  CANVAS_WIDTH,
+  PLAYER_H,
+  LS_KEY,
+  DEFAULT_SKIN,
+} from "@/lib/constants";
+import {
+  fetchLeaderboard,
+  submitToLeaderboard,
+} from "@/lib/leaderboard";
+import {
+  drawBackground,
+  drawPlatform,
+  drawParticles,
+  drawEnemies,
+  drawPlayer,
+  drawHUD,
+} from "@/lib/renderer";
 import { makePlayer, updateGame as updateGameEngine } from "@/lib/gameEngine";
 import YearSelectScreen from "@/components/screens/YearSelectScreen";
 import QuestionModal from "@/components/screens/QuestionModal";
 import LevelCompleteScreen from "@/components/screens/LevelCompleteScreen";
 import GameCompleteScreen from "@/components/screens/GameCompleteScreen";
-import AdUnit from "@/components/AdUnit";
 import { PlayerSkin, LeaderboardEntry } from "@/types";
 
 // ─── Main Game Component ──────────────────────────────────────────────────────
@@ -96,6 +110,7 @@ export default function Game() {
       lastFrameTime: 0,
       touching: { left: false, right: false, jump: false },
     };
+    audioManager.startMusic(lvl);
   }, []);
 
   // ─── Physics update ────────────────────────────────────────────────────────
@@ -182,7 +197,8 @@ export default function Game() {
       if (!g) return;
       if (down) g.keys.add(e.key);
       else g.keys.delete(e.key);
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) e.preventDefault();
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key))
+        e.preventDefault();
     };
     const kd = (e: KeyboardEvent) => onKey(e, true);
     const ku = (e: KeyboardEvent) => onKey(e, false);
@@ -321,8 +337,7 @@ export default function Game() {
   return (
     <div
       style={{
-        position: "fixed",
-        inset: 0,
+        minHeight: "100dvh",
         background: "#1a1a2e",
         display: "flex",
         flexDirection: "column",
@@ -330,176 +345,150 @@ export default function Game() {
         justifyContent: "center",
         fontFamily: "Arial, sans-serif",
         overflow: "hidden",
-        paddingBottom: "90px",
       }}
     >
-      <div style={{ display: "contents" }}>
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            maxWidth: `${CANVAS_WIDTH}px`,
-            borderRadius: "12px",
-            overflow: "hidden",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
-          }}
-        >
-          <canvas
-            ref={canvasRef}
-            width={CANVAS_WIDTH}
-            height={CANVAS_HEIGHT}
-            style={{ display: "block", width: "100%", height: "auto" }}
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: `${CANVAS_WIDTH}px`,
+          borderRadius: "12px",
+          overflow: "hidden",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+        }}
+      >
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          style={{ display: "block", width: "100%", height: "auto" }}
+        />
+
+        {/* Question overlay */}
+        {gameState === "dead" && question && (
+          <QuestionModal
+            question={question}
+            selectedAnswer={selectedAnswer}
+            answerResult={answerResult}
+            lives={lives}
+            onAnswer={handleAnswer}
           />
+        )}
+      </div>
 
-          {/* Question overlay */}
-          {gameState === "dead" && question && (
-            <QuestionModal
-              question={question}
-              selectedAnswer={selectedAnswer}
-              answerResult={answerResult}
-              lives={lives}
-              onAnswer={handleAnswer}
-            />
-          )}
-        </div>
-
-        {/* Touch controls — below canvas so they never cover the game */}
-        <div
-          style={{
-            width: "100%",
-            maxWidth: `${CANVAS_WIDTH}px`,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "10px 16px",
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              onTouchStart={(e) => {
-                e.preventDefault();
-                setTouch("left", true);
-              }}
-              onTouchEnd={() => setTouch("left", false)}
-              onMouseDown={() => setTouch("left", true)}
-              onMouseUp={() => setTouch("left", false)}
-              onMouseLeave={() => setTouch("left", false)}
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.15)",
-                border: "2px solid rgba(255,255,255,0.3)",
-                color: "white",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                userSelect: "none",
-                touchAction: "none",
-              }}
-            >
-              ←
-            </button>
-            <button
-              onTouchStart={(e) => {
-                e.preventDefault();
-                setTouch("right", true);
-              }}
-              onTouchEnd={() => setTouch("right", false)}
-              onMouseDown={() => setTouch("right", true)}
-              onMouseUp={() => setTouch("right", false)}
-              onMouseLeave={() => setTouch("right", false)}
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.15)",
-                border: "2px solid rgba(255,255,255,0.3)",
-                color: "white",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                userSelect: "none",
-                touchAction: "none",
-              }}
-            >
-              →
-            </button>
-          </div>
+      {/* Touch controls — below canvas so they never cover the game */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: `${CANVAS_WIDTH}px`,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 16px",
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: "flex", gap: "10px" }}>
           <button
-            onTouchStart={(e) => {
-              e.preventDefault();
-              setTouch("jump", true);
-            }}
-            onTouchEnd={() => setTouch("jump", false)}
-            onMouseDown={() => setTouch("jump", true)}
-            onMouseUp={() => setTouch("jump", false)}
-            onMouseLeave={() => setTouch("jump", false)}
+            onTouchStart={(e) => { e.preventDefault(); setTouch("left", true); }}
+            onTouchEnd={() => setTouch("left", false)}
+            onMouseDown={() => setTouch("left", true)}
+            onMouseUp={() => setTouch("left", false)}
+            onMouseLeave={() => setTouch("left", false)}
             style={{
-              width: "72px",
-              height: "72px",
+              width: "64px",
+              height: "64px",
               borderRadius: "50%",
-              background: "rgba(243,156,18,0.8)",
-              border: "2px solid #F39C12",
+              background: "rgba(255,255,255,0.15)",
+              border: "2px solid rgba(255,255,255,0.3)",
               color: "white",
-              fontSize: "1rem",
-              fontWeight: "bold",
+              fontSize: "1.5rem",
               cursor: "pointer",
               userSelect: "none",
               touchAction: "none",
             }}
           >
-            JUMP
+            ←
+          </button>
+          <button
+            onTouchStart={(e) => { e.preventDefault(); setTouch("right", true); }}
+            onTouchEnd={() => setTouch("right", false)}
+            onMouseDown={() => setTouch("right", true)}
+            onMouseUp={() => setTouch("right", false)}
+            onMouseLeave={() => setTouch("right", false)}
+            style={{
+              width: "64px",
+              height: "64px",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.15)",
+              border: "2px solid rgba(255,255,255,0.3)",
+              color: "white",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              userSelect: "none",
+              touchAction: "none",
+            }}
+          >
+            →
           </button>
         </div>
-
-        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <button
-              onClick={() => setShowControls(!showControls)}
-              style={{ background: "none", border: "none", color: "#7F8C8D", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline" }}
-            >
-              {showControls ? "Hide" : "Show"} keyboard controls
-            </button>
-            <button
-              onClick={() => {
-                const next = !muted;
-                setMuted(next);
-                audioManager.setMuted(next);
-                audioManager.resume();
-                try {
-                  localStorage.setItem("pm_muted", String(next));
-                } catch {
-                  /* ignore */
-                }
-              }}
-              style={{ background: "none", border: "none", color: "#7F8C8D", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1 }}
-              title={muted ? "Unmute" : "Mute"}
-            >
-              {muted ? "🔇" : "🔊"}
-            </button>
-          </div>
-          {showControls && <p style={{ color: "#BDC3C7", fontSize: "0.8rem", margin: 0 }}>Arrow keys or WASD to move | Space or W/↑ to jump</p>}
-        </div>
+        <button
+          onTouchStart={(e) => { e.preventDefault(); setTouch("jump", true); }}
+          onTouchEnd={() => setTouch("jump", false)}
+          onMouseDown={() => setTouch("jump", true)}
+          onMouseUp={() => setTouch("jump", false)}
+          onMouseLeave={() => setTouch("jump", false)}
+          style={{
+            width: "72px",
+            height: "72px",
+            borderRadius: "50%",
+            background: "rgba(243,156,18,0.8)",
+            border: "2px solid #F39C12",
+            color: "white",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            cursor: "pointer",
+            userSelect: "none",
+            touchAction: "none",
+          }}
+        >
+          JUMP
+        </button>
       </div>
-      {/* end centered game section */}
 
-      {/* Ad banner — fixed at bottom, outside document flow so AdSense height overrides can't affect game layout */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: "#1a1a2e",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <div style={{ width: "100%", maxWidth: `${CANVAS_WIDTH}px` }}>
-          <AdUnit slotId="3191988436" format="auto" responsive />
+      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <button
+            onClick={() => setShowControls(!showControls)}
+            style={{ background: "none", border: "none", color: "#7F8C8D", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline" }}
+          >
+            {showControls ? "Hide" : "Show"} keyboard controls
+          </button>
+          <button
+            onClick={() => {
+              const next = !muted;
+              setMuted(next);
+              audioManager.setMuted(next);
+              audioManager.resume();
+              try {
+                localStorage.setItem("pm_muted", String(next));
+              } catch {
+                /* ignore */
+              }
+            }}
+            style={{ background: "none", border: "none", color: "#7F8C8D", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1 }}
+            title={muted ? "Unmute" : "Mute"}
+          >
+            {muted ? "🔇" : "🔊"}
+          </button>
         </div>
+        {showControls && (
+          <p style={{ color: "#BDC3C7", fontSize: "0.8rem", margin: 0 }}>
+            Arrow keys or WASD to move | Space or W/↑ to jump
+          </p>
+        )}
       </div>
+
     </div>
   );
 }
