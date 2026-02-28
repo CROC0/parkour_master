@@ -345,6 +345,7 @@ export default function Game() {
         justifyContent: "center",
         fontFamily: "Arial, sans-serif",
         overflow: "hidden",
+        paddingBottom: "90px",
       }}
     >
       <div
