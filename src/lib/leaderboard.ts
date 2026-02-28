@@ -27,7 +27,7 @@ export async function submitToLeaderboard(
     const res = await fetch(`${SB_URL}/rest/v1/leaderboard`, {
       method: "POST",
       headers: { ...SB_HDRS, "Content-Type": "application/json", Prefer: "return=representation" },
-      body: JSON.stringify({ name: name.slice(0, 20), time_ms: timeMs, year_level: yearLevel }),
+      body: JSON.stringify({ name: name.slice(0, 20), time_ms: Math.round(timeMs), year_level: yearLevel }),
     });
     if (!res.ok) return null;
     const [row] = (await res.json()) as LeaderboardEntry[];
